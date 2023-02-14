@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introducción Alpine</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body>
+    <div x-data="{title: 'Los cruds son inevitables'}">
+        
+        <div class="" x-text="title"></div>
+        <input type="text" x-model="title">
+
+        <button x-on:click="title='Hello teacher Im your Crud'" type="button">Cambiar valor</button>
+    
+        <template x-if="title=='crud'">
+                <div>Subscribe to the channel</div>
+        </template>
+    </div>
+</body>
+</html>

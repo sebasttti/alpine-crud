@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Crud</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+  </head>
+  <body>
+    <div class="container" x-data="crudAlpine()" x-init="thisInit">
+      <br />
+      <div class="row">
+        <div class="col-xs-12 col-md-5">
+          <div class="card">
+            <div class="card-header">Empleados</div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="name">Nombre del empleado</label>
+                <input
+                  x-model="name"
+                  type="text"
+                  class="form-control"
+                  name="name"
+                  id="name"
+                  aria-describedby="helpId"
+                  placeholder=""
+                />
+                <small id="helpId" class="form-text text-muted"
+                  >Escribe el nombre del empleado</small
+                >
+              </div>
+
+              <div class="form-group">
+                <label for="email">Correo del empleado</label>
+                <input
+                  x-model="email"
+                  type="text"
+                  class="form-control"
+                  name="email"
+                  id="email"
+                  aria-describedby="helpIdEmail"
+                  placeholder=""
+                />
+                <small id="helpIdEmail" class="form-text text-muted"
+                  >Escribe el correo del empleado</small
+                >
+              </div>
+
+              <div class="btn-group" role="group" aria-label="">
+                <button
+                  type="button"
+                  class="btn btn-success"
+                  x-on:click="addEmployee()"
+                >
+                  Agregar empleado
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  x-on:click="modifyEmployee"
+                >
+                  Modificar empleado
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-info"
+                  x-on:click="clearInputs"
+                >
+                  Limpiar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-12 col-md-7">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Opciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="eachEmployee in employeesList">
+                <tr>
+                  <td x-text="eachEmployee.id"></td>
+                  <td x-text="eachEmployee.name"></td>
+                  <td x-text="eachEmployee.email"></td>
+                  <td>
+                    <div class="btn-group" role="group" aria-label="">
+                      <button
+                        type="button"
+                        class="btn btn-warning"
+                        x-on:click="selectEmployee(eachEmployee.id)"
+                      >
+                        Seleccionar
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-danger"
+                        x-on:click="deleteEmployee(eachEmployee.id)"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function crudAlpine() {
+        const url = 'http://localhost/alpine/crud.php';
+
+        return {
+          id: 0,
+          name: '',
+          email: '',
+          employeesList: [],
+
+          thisInit: function () {
+            this.fillTable();
+          },
+
+          fillTable: function () {
+            const dataConfig = {
+              method: 'GET',
+            };
+
+            fetch(`${url}/`, dataConfig)
+              .then((r) => r.json())
+              .then((data) => {
+                this.employeesList = data;
+              })
+              .catch((e) => console.log(e));
+          },
+
+          addEmployee: function () {
+            const dataToSend = {
+              name: this.name,
+              email: this.email,
+            };
+
+            const dataConfig = {
+              method: 'POST',
+              body: JSON.stringify(dataToSend),
+            };
+
+            fetch(`${url}/?insert=1`, dataConfig)
+              .then((r) => r.json())
+              .then((data) => {
+                if (data.success == 1) {
+                  this.clearInputs();
+                  this.fillTable();
+                }
+              })
+              .catch((e) => console.log(e));
+          },
+
+          selectEmployee: function (id) {
+            const selectedEmployee = this.employeesList.find(
+              (eachEmployee) => eachEmployee.id == id
+            );
+
+            this.id = selectedEmployee.id;
+            this.name = selectedEmployee.name;
+            this.email = selectedEmployee.email;
+          },
+
+          modifyEmployee: function () {
+            const conf = confirm(
+              '¿Está seguro de que desea modificar al empleado?'
+            );
+
+            if (conf) {
+              if (this.id != 0) {
+                const dataToSend = {
+                  id: this.id,
+                  name: this.name,
+                  email: this.email,
+                };
+
+                const dataConfig = {
+                  method: 'POST',
+                  body: JSON.stringify(dataToSend),
+                };
+
+                fetch(`${url}/?update=1`, dataConfig)
+                  .then((r) => r.json())
+                  .then((data) => {
+                    if (data.success == 1) {
+                      alert('Actualizacón generada con éxito');
+                      this.clearInputs();
+                      this.fillTable();
+                    }
+                  })
+                  .catch((e) => console.log(e));
+              }else{
+                alert("Por favor seleccione un empleado para continuar")
+              }
+            } else {
+              alert('Acción abortada');
+            }
+          },
+
+          deleteEmployee: function (id) {
+            const selectedEmployee = this.employeesList.find(
+              (eachEmployee) => eachEmployee.id == id
+            );
+
+            const conf = confirm(
+              `¿Está seguro de que desea modificar al empleado ${selectedEmployee.name}?`
+            );
+
+            if (conf) {
+              fetch(`${url}/?delete=${selectedEmployee.id}`)
+                .then((r) => r.json())
+                .then((data) => {
+                  if (data.success == 1) {
+                    alert('Eliminación generada con éxito');
+                    this.fillTable();
+                  }
+                })
+                .catch((e) => console.log(e));
+            } else {
+              alert('Operación abortada');
+            }
+          },
+
+          clearInputs: function () {
+            (this.id = 0), (this.name = ''), (this.email = '');
+          },
+        };
+      }
+    </script>
+  </body>
+</html>
