@@ -17,7 +17,9 @@ Make sure you have an apache server started pointing to the files where you are 
 
 ### Initial Steps
 
-After copying the repo, install the database and the table in your localhost (file attached in add.sql).
+After copying the repo, copy the file called credentials.example.php into a file called credential.php, where you put the access info of your DataBase
+
+Install the database and the table in your localhost (file attached in add.sql).
 
 Make sure your api works by calling it without any GET or POST parameter, it must return
 the first employee.
